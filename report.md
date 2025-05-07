@@ -49,14 +49,57 @@ bwa mem -t 8 /media/ivan/KINGSTON/self_project/reference/GCF_000001405.40_GRCh38
 
 2. Удаление дубликатов с помощью sambamba markdup
 bash
+conda create -n sambamba_env -c bioconda sambamba --y
+conda activate sambamba_env
+--y автоматический ответ да на запросы
 
-sambamba markdup -t 8 aligned_sorted.bam deduplicated.bam
-
+sambamba markdup -t 12 SRR7890879_aligned.bam SRR7890879_aligned_deduplicated.bam
+реальная команда sambamba markdup -t 12 SRR7890879_aligned.bam SRR7890879_aligned_deduplicated.bam
 Где:
 
     -t 8 — количество потоков.
 
     deduplicated.bam — выходной файл без дубликатов.
+
+вывод команды 
+finding positions of the duplicate reads in the file...
+  sorted 36352820 end pairs
+     and 38948 single ends (among them 0 unmatched pairs)
+  collecting indices of duplicate reads...   done in 3910 ms
+  found 15783533 duplicates
+collected list of positions in 2 min 36 sec
+marking duplicates...
+total time elapsed: 7 min 55 sec
+
+4. Базовоевая рекалибровка качества (BQSR) с помощью GATK4
+a. Генерация таблицы рекалибровки:
+bash
+
+gatk BaseRecalibrator \
+   -I deduplicated.bam \
+   -R /path/to/hg19.fasta \
+   --known-sites /path/to/dbsnp.vcf.gz \
+   --known-sites /path/to/1000G_phase1.snps.high_confidence.hg19.vcf \
+   -O recal_data.table
+
+b. Применение рекалибровки:
+bash
+
+gatk ApplyBQSR \
+   -R /path/to/hg19.fasta \
+   -I deduplicated.bam \
+   --bqsr-recal-file recal_data.table \
+   -O recalibrated.bam
+
+Где:
+
+    --known-sites — файлы с известными вариантами (например, dbSNP).
+
+    recalibrated.bam — итоговый BAM-файл после рекалибровки.
+
+
+
+
 
 ---
 
@@ -148,5 +191,16 @@ python /VarNet/predict.py \
 	-N {wildcards.seq_name} \
 	-r 3 \
 	-b "{input.paired[0]}|{input.paired[1]}" \
-	-c 1 -S 2 -E 3 -g 4 {input.target} | testsomatic.R | var2vcf_paired.pl -N "{wildcards.seq_name}|{wildcards.normal}" -f 0.02 > {output}` 
+	-c 1 -S 2 -E 3 -g 4 {input.target} | testsomatic.R | var2vcf_paired.pl -N "{wildcards.seq_name}|{wildcards.normal}" -f 0.02 > {output}`
+
+
+
+
+
+___
+рубрика вопросы 
+![image](https://github.com/user-attachments/assets/d7ab7f04-4c0f-4b0c-b591-3c59519bcfd7)
+почему эти ребята не указывают версии, например sambamba или bwa mem
+
+
      
