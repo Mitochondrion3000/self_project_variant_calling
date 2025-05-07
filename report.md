@@ -1,5 +1,43 @@
 после того как мы скачали даныне нам нужно сделать все вот это 
->The raw reads were aligned using bwa mem to the human genome reference (hg19 or hg38) corresponding to the reference used for the true set of somatic variants for each dataset [26]. Duplicated reads were marked with sambamba, and base quality score recalibration (BQSR) was done with GATK4 [27, 28]. Influence of post-alignment procedures on variant calling was evaluated using four different strategies (bwa; bwa + deduplication; bwa + BQSR; bwa + deduplication + BQSR).
+---
+
+## 1. Выравнивание reads с помощью `bwa mem`
+
+Перед началом выравнивания необходимо проиндексировать референсный геном.
+
+### 🔹 Шаг 1: Индексация референсного генома
+
+```bash
+bwa index /media/ivan/KINGSTON/self_project/reference/GCF_000001405.40_GRCh38.p14_genomic.fna
+```
+
+#### Вывод после индексирования:
+
+```
+[bwt_gen] Finished constructing BWT in 728 iterations.
+[bwa_index] 2133.71 seconds elapse.
+[bwa_index] Update BWT... 16.51 sec
+[bwa_index] Pack forward-only FASTA... 17.75 sec
+[bwa_index] Construct SA from BWT and Occ... 1369.41 sec
+[main] Version: 0.7.17-r1188
+[main] CMD: bwa index /media/ivan/KINGSTON/self_project/reference/GCF_000001405.40_GRCh38.p14_genomic.fna
+[main] Real time: 3993.403 sec; CPU: 3560.819 sec
+```
+
+---
+
+### 🔹 Шаг 2: Выравнивание чтений с помощью `bwa mem`
+
+```bash
+bwa mem -t 8 /media/ivan/KINGSTON/self_project/reference/GCF_000001405.40_GRCh38.p14_genomic.fna read1.fastq.gz read2.fastq.gz | samtools view -Sb - > aligned.bam
+```
+
+* `-t 8` — использовать 8 потоков
+* `samtools view -Sb -` — конвертация SAM в BAM и вывод в файл `aligned.bam`
+
+---
+
+
 ---
 
 ### Инструменты для анализа соматических мутаций
@@ -26,7 +64,8 @@ gatk Mutect2 \
  	-pon {input.pon} \
  	-L {input.target} \
  	--f1r2-tar-gz {output.f1r2} \
- 	-O {output.vcf}```
+ 	-O {output.vcf}
+```
 
 2. **Strelka**  
    - Высокая точность для SNV и инделов.  
