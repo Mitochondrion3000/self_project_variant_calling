@@ -1,54 +1,5 @@
-### Загрузка и обработка данных
-
-#### 1. Скачивание сырых прочтений (FASTQ)
-Сырые данные (raw reads) доступны в NCBI SRA:  
-🔗 [SRR7890879](https://trace.ncbi.nlm.nih.gov/Traces/?view=run_browser&acc=SRR7890879&display=data-access)  
-
-**Примечание**: Разница между форматами SRA: 
-![image](https://github.com/user-attachments/assets/45a94084-ae0d-48ea-bfa2-cdfbd8dfe9f4)
-
-- **SRA Lite** – облегченная версия без некоторых метаданных.  
-- **SRA Normalized** – данные нормализованы (например, по глубине покрытия).  
-
-Для загрузки FASTQ напрямую (без промежуточного .sra) использовалась команда:  
-```bash
-fasterq-dump --split-files --progress --threads 4 SRR7890883
-```
-
-#### 2. Загрузка датасета cancer-dream-syn3
-```bash
-mkdir -p cancer-dream-syn3/config cancer-dream-syn3/input cancer-dream-syn3/work
-cd cancer-dream-syn3/config
-wget https://raw.githubusercontent.com/bcbio/bcbio-nextgen/master/config/examples/cancer-dream-syn3.yaml
-cd ../input
-wget https://raw.githubusercontent.com/bcbio/bcbio-nextgen/master/config/examples/cancer-dream-syn3-getdata.sh
-bash cancer-dream-syn3-getdata.sh
-```
-
-#### 3. Референсный геном
-Скачан GRCh38 (GCF_000001405.40) из NCBI Datasets, так как он указан в референсных VCF:  
-```bash
-conda activate ncbi_datasets
-datasets download genome accession GCF_000001405.40 --include genome
-```
-Для экономии места можно использовать `--dehydrated` с последующей регидратацией:  
-```bash
-datasets rehydrate --directory ncbi_dataset
-```
-
-#### 4. Конвертация SRA Lite в FASTQ
-```bash
-conda activate sra_env
-fastq-dump --split-files --gzip /path/to/SRR7890879.sralite.1
-```
-**Результат**: 36,393,620 прочтений.
-
-#### 5. Выравнивание на референс
-Использован `bwa mem` для выравнивания парных прочтений:  
-```bash
-bwa mem -t 8 /path/to/hg38.fasta sample_1.fastq.gz sample_2.fastq.gz | samtools view -Sb - > aligned.bam
-```
-
+после того как мы скачали даныне нам нужно сделать все вот это 
+>The raw reads were aligned using bwa mem to the human genome reference (hg19 or hg38) corresponding to the reference used for the true set of somatic variants for each dataset [26]. Duplicated reads were marked with sambamba, and base quality score recalibration (BQSR) was done with GATK4 [27, 28]. Influence of post-alignment procedures on variant calling was evaluated using four different strategies (bwa; bwa + deduplication; bwa + BQSR; bwa + deduplication + BQSR).
 ---
 
 ### Инструменты для анализа соматических мутаций
@@ -56,7 +7,8 @@ bwa mem -t 8 /path/to/hg38.fasta sample_1.fastq.gz sample_2.fastq.gz | samtools 
    - Популярный инструмент от Broad Institute.  
    - Использует Gradient Boosting (XGBoost-like) для фильтрации ложных вариантов.
      
-`#Mutect2
+```bash
+#Mutect2
 export OMP_NUM_THREADS={resources.cpus_per_task}
 file_name=$(basename {input.paired[1]})
 name=${{file_name%.sort*}}
@@ -74,7 +26,7 @@ gatk Mutect2 \
  	-pon {input.pon} \
  	-L {input.target} \
  	--f1r2-tar-gz {output.f1r2} \
- 	-O {output.vcf}`
+ 	-O {output.vcf}```
 
 2. **Strelka**  
    - Высокая точность для SNV и инделов.  
