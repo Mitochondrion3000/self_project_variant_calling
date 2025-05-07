@@ -1,4 +1,6 @@
-после того как мы скачали даныне нам нужно сделать все вот это 
+после того как мы скачали даныне нам нужно сделать все вот это: 
+
+The raw reads were aligned using bwa mem to the human genome reference (hg19 or hg38) corresponding to the reference used for the true set of somatic variants for each dataset [26]. Duplicated reads were marked with sambamba, and base quality score recalibration (BQSR) was done with GATK4 [27, 28]. Influence of post-alignment procedures on variant calling was evaluated using four different strategies (bwa; bwa + deduplication; bwa + BQSR; bwa + deduplication + BQSR).
 ---
 
 ## 1. Выравнивание reads с помощью `bwa mem`
@@ -31,9 +33,30 @@ bwa index /media/ivan/KINGSTON/self_project/reference/GCF_000001405.40_GRCh38.p1
 ```bash
 bwa mem -t 8 /media/ivan/KINGSTON/self_project/reference/GCF_000001405.40_GRCh38.p14_genomic.fna read1.fastq.gz read2.fastq.gz | samtools view -Sb - > aligned.bam
 ```
+реальная команда 
+(base) ivan@ivan-Redmi-Book-Pro-15-2022:/media/ivan/KINGSTON/self_project/bams$ bwa mem -t 12 /media/ivan/KINGSTON/self_project/reference/GCF_000001405.40_GRCh38.p14_genomic.fna /media/ivan/KINGSTON/self_project/raw_data/SEQC2/SRR7890879.sralite.1_1.fastq.gz /media/ivan/KINGSTON/self_project/raw_data/SEQC2/SRR7890879.sralite.1_2.fastq.gz | samtools view -b - > SRR7890879_aligned.bam && { echo -e "\a"; notify-send "BWA Index" "Ура нафиг!"; }
+
+вывод команды
+(base) ivan@ivan-Redmi-Book-Pro-15-2022:/media/ivan/KINGSTON/self_project/bams$ bwa mem -t 12 /media/ivan/KINGSTON/self_project/reference/GCF_000001405.40_GRCh38.p14_genomic.fna /media/ivan/KINGSTON/self_project/raw_data/SEQC2/SRR7890879.sralite.1_1.fastq.gz /media/ivan/KINGSTON/self_project/raw_data/SEQC2/SRR7890879.sralite.1_2.fastq.gz | samtools view -b - > SRR7890879_aligned.bam && { echo -e "\a"; notify-send "BWA Index" "Ура нафиг!"; }
+
+
+[main] Version: 0.7.17-r1188
+[main] CMD: bwa mem -t 12 /media/ivan/KINGSTON/self_project/reference/GCF_000001405.40_GRCh38.p14_genomic.fna /media/ivan/KINGSTON/self_project/raw_data/SEQC2/SRR7890879.sralite.1_1.fastq.gz /media/ivan/KINGSTON/self_project/raw_data/SEQC2/SRR7890879.sralite.1_2.fastq.gz
+[main] Real time: 1672.178 sec; CPU: 17157.415 sec
 
 * `-t 8` — использовать 8 потоков
 * `samtools view -Sb -` — конвертация SAM в BAM и вывод в файл `aligned.bam`
+
+2. Удаление дубликатов с помощью sambamba markdup
+bash
+
+sambamba markdup -t 8 aligned_sorted.bam deduplicated.bam
+
+Где:
+
+    -t 8 — количество потоков.
+
+    deduplicated.bam — выходной файл без дубликатов.
 
 ---
 
