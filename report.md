@@ -240,6 +240,16 @@ gatk Mutect2 \
  	-O {output.vcf}
 ```
 
+кто знал кто знал что понадобится еще и --germline-resource {input.gnomad} вот этот файл откуда-то брать 
+чат гпт сказал что вот отсюда можно взять и они совместимы будут с любым рефернесмо у кого названия хромсом "chrX"
+
+➡️ GATK рекомендует использовать af-only-gnomad.hg38.vcf.gz
+Скачать можно с Broad Institute:
+
+wget https://storage.googleapis.com/gatk-best-practices/somatic-hg38/af-only-gnomad.hg38.vcf.gz
+wget https://storage.googleapis.com/gatk-best-practices/somatic-hg38/af-only-gnomad.hg38.vcf.gz.tbi
+
+
 2. **Strelka**  
    - Высокая точность для SNV и инделов.  
    - Применяет HMM и ML-фильтры.
@@ -309,5 +319,30 @@ ___
 ![image](https://github.com/user-attachments/assets/d7ab7f04-4c0f-4b0c-b591-3c59519bcfd7)
 почему эти ребята не указывают версии, например sambamba или bwa mem
 
+___
+рубрика не знаю куда это засунуть 
+
+вот это я еще раз индексировал 
+команда: 
+bwa index GRCh38.d1.vd1.fa.tar.gz
+
+вывод команды: 
+...
+
+еще раз выравнивал
+команда:
+(base) ivan@ivan-Redmi-Book-Pro-15-2022:/media/ivan/KINGSTON/self_project/bams$ bwa mem -t 12 /media/ivan/KINGSTON/self_project/reference_SEQC2/GRCh38.d1.vd1.fa.tar.gz /media/ivan/KINGSTON/self_project/raw_data/SEQC2/SRR7890879.sralite.1_1.fastq.gz /media/ivan/KINGSTON/self_project/raw_data/SEQC2/SRR7890879.sralite.1_2.fastq.gz | samtools view -b - > SRR7890879_aligned_GRCh38_d1_vd1.bam && { echo -e "\a"; notify-send "BWA Index" "Ура нафиг!"; }
+
+вывод команды 
+...
+
+И про это я не забыл 
+(sambamba_env) ivan@ivan-Redmi-Book-Pro-15-2022:/media/ivan/KINGSTON/self_project/bams$ sambamba markdup -t 12 SRR7890879_aligned_GRCh38_d1_vd1.bam SRR7890879_aligned_dedup_GRCh38_d1_vd1.bam 
+...
+
+bwa index GRCh38.d1.vd1.fa
+bwa mem -t 12 /media/ivan/KINGSTON/self_project/reference_SEQC2/GRCh38.d1.vd1.fa /media/ivan/KINGSTON/self_project/raw_data/SEQC2/SRR7890879.sralite.1_1.fastq.gz /media/ivan/KINGSTON/self_project/raw_data/SEQC2/SRR7890879.sralite.1_2.fastq.gz | samtools view -b - > SRR7890879_aligned_GRCh38_d1_vd1.bam && { echo -e "\a"; notify-send "BWA Index" "Ура нафиг!"; }
+conda activate sambamba_env
+sambamba markdup -t 12 SRR7890879_aligned_GRCh38_d1_vd1.bam SRR7890879_aligned_dedup_GRCh38_d1_vd1.bam 
 
      
