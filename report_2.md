@@ -52,6 +52,9 @@ picard AddOrReplaceReadGroups     I=aligned_normal_g.bam     O=aligned_normal_g_
 sed 's/^/chr/' /media/ivan/KINGSTON/self_project/cancer-dream-syn3/input/NGv3.bed > NGv3_fixed.bed
 нужно хромосомы исправить
 
+что еще важно брал я референсный датасет(https://gatk.broadinstitute.org/hc/en-us/articles/360035890711-GRCh37-hg19-b37-humanG1Kv37-Human-Reference-Discrepancies#grch37) там где хромосомы так называются chrX
+вот тут (http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/hg19.fa.gz), а вот этот почему-то нормально не скачивался(ftp://ftp.ncbi.nlm.nih.gov/genomes/refseq/vertebrate_mammalian/Homo_sapiens/all_assembly_versions/GCF_000001405.25_GRCh37.p13/GCF_000001405.25_GRCh37.p13_genomic.fna.gz) 
+
 
 
   
