@@ -150,10 +150,32 @@ configureStrelkaSomaticWorkflow.py --exome \
     --tumor=/media/ivan/KINGSTON/self_project/cancer-dream-syn3/work/tumor_with_rg.bam \
     --ref=/media/ivan/KINGSTON/self_project/cancer-dream-syn3/reference_gatk/hg19.fa \
     --runDir=/media/ivan/KINGSTON/self_project/cancer-dream-syn3/results/strelka_analysis \
-    --callRegions /media/ivan/KINGSTON/self_project/cancer-dream-syn3/input/synthetic_challenge_set3_normal_NGv3_2.fq.gz
-
-и сам запуск
-./strelka_analysis/runWorkflow.py -m local -j 8
+    --callRegions=/media/ivan/KINGSTON/self_project/cancer-dream-syn3/input/NGv3_fixed.bed
 
 
-  
+А стрелка требует манипуляции с bed файлом которые не требовал gatk
+
+# Переходим в директорию с BED-файлом
+cd /media/ivan/KINGSTON/self_project/cancer-dream-syn3/input/
+
+# Сортируем BED (обязательно!)
+sort -k1,1 -k2,2n NGv3_fixed.bed > NGv3_fixed.sorted.bed
+
+# Сжимаем с помощью bgzip
+bgzip NGv3_fixed.sorted.bed
+
+# Создаём индекс .tbi
+tabix -p bed NGv3_fixed.sorted.bed.gz
+
+Successfully created workflow run script.
+To execute the workflow, run the following script and set appropriate options:
+
+/media/ivan/KINGSTON/self_project/cancer-dream-syn3/results/strelka_analysis/runWorkflow.py
+
+# 1. Освободите память (закройте тяжёлые приложения)
+# 2. Запустите Strelka с ограничениями
+cd /media/ivan/KINGSTON/self_project/cancer-dream-syn3/results/
+./strelka_analysis/runWorkflow.py -m local -j 2 --memGb=10
+
+
+
