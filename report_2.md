@@ -132,5 +132,28 @@ gatk AddOrReplaceReadGroups \
 picard AddOrReplaceReadGroups     I=aligned_normal_g.bam     O=aligned_normal_g_fixed.bam     RGID=group1     RGLB=lib1     RGPL=illumina     RGPU=unit1     RGSM=normal_sample  # Здесь задайте осмысленное имя образца и это имя потом передать нужно -normal "normal_sample" сюда
 файл с интересующими нас участками
 
+Тепрь следующий инструмент:
+Тут почему-то запуск делется на файлы конфигурации
+configureStrelkaSomaticWorkflow.py --exome \
+    --normal=normal_sample.bam \
+    --tumor=tumor_sample.bam \
+    --ref=hg38.fa \
+    --runDir=strelka_analysis \
+    --callRegions target_regions.bed.gz
+
+команда с прописаными путями:
+
+conda activate strelka_env
+
+configureStrelkaSomaticWorkflow.py --exome \
+    --normal=/media/ivan/KINGSTON/self_project/cancer-dream-syn3/work/normal_with_rg.bam \
+    --tumor=/media/ivan/KINGSTON/self_project/cancer-dream-syn3/work/tumor_with_rg.bam \
+    --ref=/media/ivan/KINGSTON/self_project/cancer-dream-syn3/reference_gatk/hg19.fa \
+    --runDir=/media/ivan/KINGSTON/self_project/cancer-dream-syn3/results/strelka_analysis \
+    --callRegions /media/ivan/KINGSTON/self_project/cancer-dream-syn3/input/synthetic_challenge_set3_normal_NGv3_2.fq.gz
+
+и сам запуск
+./strelka_analysis/runWorkflow.py -m local -j 8
+
 
   
