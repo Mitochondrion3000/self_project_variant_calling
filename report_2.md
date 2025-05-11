@@ -20,6 +20,7 @@ bwa mem -t 12 /media/ivan/KINGSTON/self_project/cancer-dream-syn3/reference/GRCh
 
 
 
+
 bwa index /media/ivan/KINGSTON/self_project/cancer-dream-syn3/reference_gatk/GCF_000001405.25_GRCh37.p13_genomic.fna.gz
 samtools /media/ivan/KINGSTON/self_project/cancer-dream-syn3/reference_gatk/GCF_000001405.25_GRCh37.p13_genomic.fna.gz 
 gatk CreateSequenceDictionary \
@@ -132,6 +133,7 @@ gatk AddOrReplaceReadGroups \
 picard AddOrReplaceReadGroups     I=aligned_normal_g.bam     O=aligned_normal_g_fixed.bam     RGID=group1     RGLB=lib1     RGPL=illumina     RGPU=unit1     RGSM=normal_sample  # Здесь задайте осмысленное имя образца и это имя потом передать нужно -normal "normal_sample" сюда
 файл с интересующими нас участками
 
+___
 Тепрь следующий инструмент:
 Тут почему-то запуск делется на файлы конфигурации
 configureStrelkaSomaticWorkflow.py --exome \
@@ -176,6 +178,43 @@ To execute the workflow, run the following script and set appropriate options:
 # 2. Запустите Strelka с ограничениями
 cd /media/ivan/KINGSTON/self_project/cancer-dream-syn3/results/
 ./strelka_analysis/runWorkflow.py -m local -j 2 --memGb=10
+__
+
+Еще один инструмент deepsomatic
+
+conda create -n deepsomatic_env -y
+conda activate deepsomatic_env
+
+conda install pytorch torchvision torchaudio cpuonly -c pytorch
+pip install numpy pysam cython
+
+git clone https://github.com/bioinformatics-centre/DeepSomatic.git
+cd DeepSomatic
 
 
+git clone https://github.com/bioinformatics-centre/DeepSomatic.git
+cd DeepSomatic он тоже не пошел не знаю почему 
+___
 
+еще один freebayes
+
+conda create -n freebayes_env
+conda activate freebayes_env
+
+conda install -c bioconda freebayes
+
+freebayes \
+    -b /media/ivan/KINGSTON/self_project/cancer-dream-syn3/work/normal_with_rg.bam \
+    -b /media/ivan/KINGSTON/self_project/cancer-dream-syn3/work/tumor_with_rg.bam \
+    -t /media/ivan/KINGSTON/self_project/cancer-dream-syn3/input/NGv3_fixed.bed \
+    -f /media/ivan/KINGSTON/self_project/cancer-dream-syn3/reference_gatk/hg19.fa \
+    -F 0.02 \
+    --min-coverage 10 \
+    -C 2 \
+    -m 30 \
+    -q 20 \
+    -R 0 \
+    -S 0 \
+    --pooled-discrete \
+    --pooled-continuous \
+    --allele-balance-priors-off в вот тут получилось, ура 
