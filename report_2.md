@@ -132,6 +132,37 @@ gatk AddOrReplaceReadGroups \
 а это мы для нормального добовляли 
 picard AddOrReplaceReadGroups     I=aligned_normal_g.bam     O=aligned_normal_g_fixed.bam     RGID=group1     RGLB=lib1     RGPL=illumina     RGPU=unit1     RGSM=normal_sample  # Здесь задайте осмысленное имя образца и это имя потом передать нужно -normal "normal_sample" сюда
 файл с интересующими нас участками
+___ следующий надеюсь рабочий
+
+conda create -n lofreq_env -c bioconda lofreq
+conda activate lofreq_env
+lofreq version
+
+
+# Шаг 1: Добавление индел-качества в нормальный BAM
+lofreq indelqual --dindel \
+    --ref /media/ivan/KINGSTON/self_project/cancer-dream-syn3/reference_gatk/hg19.fa \
+    -o normal.dindel.bam \
+    /media/ivan/KINGSTON/self_project/cancer-dream-syn3/work/normal_with_rg.bam
+
+# Шаг 2: То же самое для опухолевого
+lofreq indelqual --dindel \
+    --ref /media/ivan/KINGSTON/self_project/cancer-dream-syn3/reference_gatk/hg19.fa \
+    -o tumor.dindel.bam \
+    /media/ivan/KINGSTON/self_project/cancer-dream-syn3/work/tumor_with_rg.bam
+
+# Шаг 3: Сравнение нормального и опухолевого (теперь используем *_dindel.bam!)
+lofreq somatic --call-indels \
+    -n normal.dindel.bam \
+    -t tumor.dindel.bam \
+    -f /media/ivan/KINGSTON/self_project/cancer-dream-syn3/reference_gatk/hg19.fa \
+    --threads 12 \
+    -l /media/ivan/KINGSTON/self_project/cancer-dream-syn3/input/NGv3_fixed.bed \
+    -o sample1_vs_control1.LoFreq.
+
+
+
+
 
 ___
 Тепрь следующий инструмент:
@@ -217,4 +248,20 @@ freebayes \
     -S 0 \
     --pooled-discrete \
     --pooled-continuous \
-    --allele-balance-priors-off в вот тут получилось, ура 
+    --allele-balance-priors-off > output_freebayes.vcf
+вот эта команда вроде успешно сработала 
+
+#Additional script see https://github.com/bcbio/bcbio-nextgen/blob/master/bcbio/variation/freebayes.py#L118
+    
+ivan@ivan-Redmi-Book-Pro-15-2022:/media/ivan/KINGSTON/self_project$ samtools view -H /media/ivan/KINGSTON/self_project/cancer-dream-syn3/work/normal_with_rg.bam | grep '@RG'
+@RG	ID:normal_group1	LB:lib1	PL:illumina	SM:normal_sample	PU:unit1
+(freebayes_env) ivan@ivan-Redmi-Book-Pro-15-2022:/media/ivan/KINGSTON/self_project$ samtools view -H /media/ivan/KINGSTON/self_project/cancer-dream-syn3/work/tumor_with_rg.bam | grep '@RG'
+@RG	ID:tumor_group1	LB:lib1	PL:illumina	SM:tumor_sample	PU:unit1
+
+conda install -c bioconda freebayes six toolz bcftools vcflib vt
+------------------------python bcbio_nextgen_install.py /home/ivan/bcbio --tooldir=~/bcbio/tools --nodata не хватило ресуров чтобы уставновить 
+
+python /media/ivan/KINGSTON/self_project/freebayes.py     /media/ivan/KINGSTON/self_project/output_freebayes.vcf     tumor_sample     normal_sample     > /media/ivan/KINGSTON/self_project/final.vcf
+
+
+
