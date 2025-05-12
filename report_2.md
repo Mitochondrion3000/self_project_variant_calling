@@ -132,6 +132,9 @@ gatk AddOrReplaceReadGroups \
 а это мы для нормального добовляли 
 picard AddOrReplaceReadGroups     I=aligned_normal_g.bam     O=aligned_normal_g_fixed.bam     RGID=group1     RGLB=lib1     RGPL=illumina     RGPU=unit1     RGSM=normal_sample  # Здесь задайте осмысленное имя образца и это имя потом передать нужно -normal "normal_sample" сюда
 файл с интересующими нас участками
+
+bcftools view -v snps /media/ivan/KINGSTON/self_project/cancer-dream-syn3/results/somatic.vcf > somatic_snvs.vcf
+bcftools view -v indels /media/ivan/KINGSTON/self_project/cancer-dream-syn3/results/somatic.vcf > somatic_indels.vcf
 ___ следующий надеюсь рабочий
 
 conda create -n lofreq_env -c bioconda lofreq
@@ -144,6 +147,9 @@ lofreq indelqual --dindel \
     --ref /media/ivan/KINGSTON/self_project/cancer-dream-syn3/reference_gatk/hg19.fa \
     -o normal.dindel.bam \
     /media/ivan/KINGSTON/self_project/cancer-dream-syn3/work/normal_with_rg.bam
+
+samtools index /media/ivan/KINGSTON/self_project/cancer-dream-syn3/results/normal.dindel.bam
+samtools index /media/ivan/KINGSTON/self_project/cancer-dream-syn3/results/tumor.dindel.bam
 
 # Шаг 2: То же самое для опухолевого
 lofreq indelqual --dindel \
