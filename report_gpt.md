@@ -83,96 +83,39 @@
 
 ## 5. GATK Mutect2
 
-* <span style="color:gray"># Псевдокоманда:</span>
+````bash
 
-  ```bash
-  gatk Mutect2 \
-    -R <reference.fa> \
-    -I <tumor.bam> \
-    -I <normal.bam> \
-    -normal <sample_id> \
-    -L <target_regions.bed> \
-    --f1r2-tar-gz <output.tar.gz> \
-    -O <output.vcf.gz>
-  ```
-
-* <span style="color:gray"># Реальная команда:</span>
-
-  ```bash
-  gatk Mutect2 \
-    -R hg19.fa \
-    -I tumor_with_rg.bam \
-    -I normal_with_rg.bam \
-    -normal normal_sample \
-    -L NGv3_fixed.bed \
-    --f1r2-tar-gz f1r2.tar.gz \
-    -O somatic.vcf.gz
-  ```
-
-* **Фильтрация вариантов:** <span style="color:gray"># Псевдокоманды:</span>
-
-  ```bash
-  bcftools view -v snps <input.vcf> > <snv_output.vcf>
-  bcftools view -v indels <input.vcf> > <indel_output.vcf>
-  ```
-
-  <span style="color:gray"># Реальные команды:</span>
-
-  ```bash
-  bcftools view -v snps somatic.vcf > somatic_snvs.vcf
-  bcftools view -v indels somatic.vcf > somatic_indels.vcf
-  ```
-
-gatk Mutect2&#x20;
--R hg19.fa&#x20;
--I tumor\_with\_rg.bam&#x20;
--I normal\_with\_rg.bam&#x20;
--normal normal\_sample&#x20;
--L NGv3\_fixed.bed&#x20;
-\--f1r2-tar-gz f1r2.tar.gz&#x20;
--O somatic.vcf.gz
-
+```bash
+bcftools view -v snps somatic.vcf > somatic_snvs.vcf
+bcftools view -v indels somatic.vcf > somatic_indels.vcf
+```bash
+gatk Mutect2 \
+  -R hg19.fa \
+  -I tumor_with_rg.bam \
+  -I normal_with_rg.bam \
+  -normal normal_sample \
+  -L NGv3_fixed.bed \
+  --f1r2-tar-gz f1r2.tar.gz \
+  -O somatic.vcf.gz
 ````
 
 ---
 
 ## 6. LoFreq
 
-- **Подготовка окружения:**
-  ```bash
-  conda create -n lofreq_env -c bioconda lofreq
-  conda activate lofreq_env
-  lofreq version
-````
-
-* **Добавление indel-качества:** <span style="color:gray"># Псевдокоманда:</span>
-
-  ```bash
-  lofreq indelqual --dindel --ref <reference.fa> -o <sample>.dindel.bam <sample>.bam
-  ```
-
-  <span style="color:gray"># Реальные команды:</span>
+* **Добавление indel-качества:**
 
   ```bash
   lofreq indelqual --dindel --ref hg19.fa -o tumor.dindel.bam tumor_with_rg.bam
   lofreq indelqual --dindel --ref hg19.fa -o normal.dindel.bam normal_with_rg.bam
   ```
-
 * **Индексация BAM-файлов с индел-качеством:**
 
   ```bash
   samtools index tumor.dindel.bam
   samtools index normal.dindel.bam
   ```
-
-* **Соматический вызов:** <span style="color:gray"># Псевдокоманда:</span>
-
-  ```bash
-  lofreq somatic --call-indels -n <normal>.dindel.bam -t <tumor>.dindel.bam \
-    -f <reference.fa> -l <regions.bed> --threads N -o <output>.vcf
-  ```
-
-  <span style="color:gray"># Реальная команда:</span>
+* **Соматический вызов:**
 
   ```bash
   lofreq somatic \
@@ -185,35 +128,9 @@ gatk Mutect2&#x20;
     -o sample1_vs_control1.LoFreq.vcf
   ```
 
+---
+
 ## 7. Strelka2
-
-* <span style="color:gray"># Псевдокоманда:</span>
-
-  ```bash
-  configureStrelkaSomaticWorkflow.py \
-    --exome \
-    --normal <normal.bam> \
-    --tumor <tumor.bam> \
-    --ref <reference.fa> \
-    --runDir <output_dir> \
-    --callRegions <regions.bed.gz>
-  cd <output_dir>
-  ./runWorkflow.py -m local -j <threads> --memGb=<mem>
-  ```
-
-* <span style="color:gray"># Реальная команда:</span>
-
-  ```bash
-  configureStrelkaSomaticWorkflow.py --exome \
-    --normal normal_with_rg.bam \
-    --tumor tumor_with_rg.bam \
-    --ref hg19.fa \
-    --runDir strelka_analysis \
-    --callRegions NGv3_fixed.sorted.bed.gz
-
-  cd strelka_analysis
-  ./runWorkflow.py -m local -j 2 --memGb=10
-  ```
 
 * **Подготовка BED:**
 
@@ -241,28 +158,15 @@ gatk Mutect2&#x20;
 
 ## 8. FreeBayes
 
-* <span style="color:gray"># Псевдокоманда:</span>
-
-  ```bash
-  freebayes \
-    -b <normal.bam> \
-    -b <tumor.bam> \
-    -t <target.bed> \
-    -f <reference.fa> \
-    -F 0.02 --min-coverage 10 -C 2 -m 30 -q 20 \
-    --pooled-discrete --pooled-continuous --allele-balance-priors-off > <output.vcf>
-  ```
-* <span style="color:gray"># Реальная команда:</span>
-
-  ```bash
-  freebayes \
-    -b normal_with_rg.bam \
-    -b tumor_with_rg.bam \
-    -t NGv3_fixed.bed \
-    -f hg19.fa \
-    -F 0.02 --min-coverage 10 -C 2 -m 30 -q 20 \
-    --pooled-discrete --pooled-continuous --allele-balance-priors-off > output_freebayes.vcf
-  ```
+```bash
+freebayes \
+  -b normal_with_rg.bam \
+  -b tumor_with_rg.bam \
+  -t NGv3_fixed.bed \
+  -f hg19.fa \
+  -F 0.02 --min-coverage 10 -C 2 -m 30 -q 20 \
+  --pooled-discrete --pooled-continuous --allele-balance-priors-off > output_freebayes.vcf
+```
 
 ---
 
