@@ -97,6 +97,15 @@ gatk Mutect2 \
   -L NGv3_fixed.bed \
   --f1r2-tar-gz f1r2.tar.gz \
   -O somatic.vcf.gz
+```bash
+прям в выходном файле было прописано что его нельзя использовать до тех пор пока вы не сделаете это
+ gatk FilterMutectCalls \
+   -R reference.fasta \
+   -V somatic.vcf.gz \
+   --contamination-table contamination.table \
+   --tumor-segmentation segments.tsv \
+   -O filtered.vcf.gz
+но в статье об этом никто не сказал, почему? 
 ````
 
 ---
