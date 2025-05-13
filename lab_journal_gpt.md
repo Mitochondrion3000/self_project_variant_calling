@@ -193,6 +193,18 @@ GATK Mutect2 выдал нам один файл на выходе somatic.vcf. 
 LoFreq 
 тут важно отметить что как в первом и во втором случае я dbsnp не использовал, хотя очень горячо рекоендуют. 
 
+| Name | Platform | Sample  | Link                                       | Number of SNVs | Number of indels | Coverage | Duplication rate (%) | Contamination | Error rate |
+|------|----------|---------|--------------------------------------------|----------------|------------------|----------|-----------------------|---------------|------------|
+| NGV3 | In silico| HCC1143 | [bcbio-nextgen](https://github.com/bcbio/bcbio-nextgen) | 474            | 464              | 40x      | 4.85                  | 1.08E−03      | 2.17E−04   |
+Всего вариантов: 938
+  SNPs: 474
+  INDELs: 464 - пока только три статистики понял откуда взялись 
+Не забываем что у нас в эталонном файле не правильный формат хромосом sed 's/^/chr/' NGv3.bed > NGv3_fixed.bed
+
+Объединение VCF файлов с помощью bcftools
+bcftools merge /home/ivan/Desktop/itmo/practice_bioinf_2/for_analysis/sample1_vs_control1.LoFreq.normal_stringent.snvs.vcf.gz /home/ivan/Desktop/itmo/practice_bioinf_2/for_analysis/sample1_vs_control1.LoFreq.normal_stringent.indels.vcf.gz -o merged_LoFreq.vcf
+
+
 
 ## Вывод
 
